@@ -8,6 +8,9 @@
 
 import UIKit
 import CoreLocation
+import Alamofire
+import SwiftyJSON
+
 
 
 /// our class conforms to the rules of CLLocationManagerDelegate
@@ -63,7 +66,21 @@ class WeatherViewController: UIViewController, CLLocationManagerDelegate {
     /***************************************************************/
     
     //Write the getWeatherData method here:
-    
+    // call api here using Alamofire (like axios)
+    func getWeatherData (url: String, parameters: [String : String]) {
+        
+        // makes an async call to the api
+        //
+        Alamofire.request(url, method: .get, parameters: parameters).responseJSON {
+            response in
+            if response.result.isSuccess {
+                print("Succes retrieving data")
+            } else {
+                print("Error \(String(describing: response.result.error))")
+                self.cityLabel.text = "Connection issues"
+            }
+        }
+    }
 
     
     
@@ -114,10 +131,13 @@ class WeatherViewController: UIViewController, CLLocationManagerDelegate {
         let longitude = location.coordinate.longitude
         
         /// dictionary
-        // an array that behaves like an object
+        // looks like an array - - behaves like an object
         // has keys and values
         // here we declare the structure of the data // key: string and value: string
         let params: [String : String] = ["lat": String(latitude), "lon": String(longitude), "appid": APP_ID]
+        
+        // call the method that calls the api
+        getWeatherData(url: WEATHER_URL, parameters: params)
     }
     
     
