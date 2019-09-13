@@ -24,7 +24,7 @@ class WeatherViewController: UIViewController, CLLocationManagerDelegate {
     
     //TODO: Declare instance variables here
     let locationManager = CLLocationManager()
-
+    let weatherDataModel = WeatherDataModel()
     
     
     //Pre-linked IBOutlets
@@ -70,11 +70,16 @@ class WeatherViewController: UIViewController, CLLocationManagerDelegate {
     func getWeatherData (url: String, parameters: [String : String]) {
         
         // makes an async call to the api
-        //
         Alamofire.request(url, method: .get, parameters: parameters).responseJSON {
+            // keyword "in" means we are inside a closure (callback)
             response in
             if response.result.isSuccess {
                 print("Succes retrieving data")
+                // save the json response in a const
+                // we need to convert it to a JSON because the returned .value has type any?
+                // JSON is from swiftyJSON??
+                let weatherJSON : JSON = JSON(response.result.value!)
+                self.updateWeatherData(json: weatherJSON)
             } else {
                 print("Error \(String(describing: response.result.error))")
                 self.cityLabel.text = "Connection issues"
@@ -84,15 +89,20 @@ class WeatherViewController: UIViewController, CLLocationManagerDelegate {
 
     
     
-    
-    
-    
+
     //MARK: - JSON Parsing
     /***************************************************************/
    
     
     //Write the updateWeatherData method here:
-    
+    func updateWeatherData (json: JSON) {
+        // we are looking inside the dictionary
+        // we are asking for the key "main" (has value an obkect)
+        // and then for the key "temp" inside the objet value of "main"
+        let tempResult = json["main"]["temp"]
+        // lecture 154
+        
+    }
 
     
     
