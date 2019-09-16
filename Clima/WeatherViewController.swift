@@ -14,7 +14,8 @@ import SwiftyJSON
 
 
 /// our class conforms to the rules of CLLocationManagerDelegate
-class WeatherViewController: UIViewController, CLLocationManagerDelegate {
+/// and ChangeCityDelegate of the changeCityViewController
+class WeatherViewController: UIViewController, CLLocationManagerDelegate, ChangeCityDelegate {
     
     //Constants
     let WEATHER_URL = "http://api.openweathermap.org/data/2.5/weather"
@@ -209,11 +210,26 @@ class WeatherViewController: UIViewController, CLLocationManagerDelegate {
     
     
     //Write the userEnteredANewCityName Delegate method here:
-    
+    func userEnteredNewCityNAme(city: String) {
+        print(city)
+    }
 
     
-    //Write the PrepareForSegue Method here
-    
+    ///every UIViewController has a method that's called "Prepare For Segue"
+    // it performs the actions that will happen just before the segue action go ahead
+    // like a componentDidUnmount
+    override func prepare(for segue: UIStoryboardSegue, sender: Any?) {
+        //check if the segue indentifier is the one we want
+        //and then perform an action
+        if segue.identifier == "changeCityName" {
+            //we set the destination of this segue as the ChangeCityVC
+            //so we can have access to the controller's properties
+            /// as! ChangeCityVC we tell the compiler that
+            //destinationVC will be of type UIViewController
+            let destinationVC = segue.destination as! ChangeCityViewController
+            destinationVC.delegate = self
+        }
+    }
     
     
     
