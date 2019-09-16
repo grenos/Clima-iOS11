@@ -18,12 +18,13 @@ class WeatherViewController: UIViewController, CLLocationManagerDelegate {
     
     //Constants
     let WEATHER_URL = "http://api.openweathermap.org/data/2.5/weather"
-    // let APP_ID = "e72ca729af228beabd5d20e3b7749713"
     let APP_ID = "2de17f54441ca48dc37a4971a4d2a1dd"
 
     
     //TODO: Declare instance variables here
+    // init the locationManager class
     let locationManager = CLLocationManager()
+    // init the dataModel class
     let weatherDataModel = WeatherDataModel()
     
     
@@ -42,7 +43,7 @@ class WeatherViewController: UIViewController, CLLocationManagerDelegate {
         // to send messages to another object when a specific event happens.
         // to use the functionality of the CLLocationManager we need to
         // set this class as its delegate
-        // hence accessing the delgate prop we set it to = self(this class)
+        // hence accessing the delgate prop we set it to = self (this class)
         locationManager.delegate = self
         // set gps accuracy
         // -- the better the accuracy the slower to get a position
@@ -72,6 +73,7 @@ class WeatherViewController: UIViewController, CLLocationManagerDelegate {
         // makes an async call to the api
         Alamofire.request(url, method: .get, parameters: parameters).responseJSON {
             // keyword "in" means we are inside a closure (callback)
+            // like writting res => {}
             response in
             if response.result.isSuccess {
                 print("Succes retrieving data")
@@ -79,6 +81,8 @@ class WeatherViewController: UIViewController, CLLocationManagerDelegate {
                 // we need to convert it to a JSON because the returned .value has type any?
                 // JSON is from swiftyJSON??
                 let weatherJSON : JSON = JSON(response.result.value!)
+                // here we need to reference self (the class) because we point to a function
+                // out of this closure's scope (function that's at the body of the class)
                 self.updateWeatherData(json: weatherJSON)
             } else {
                 print("Error \(String(describing: response.result.error))")
@@ -93,15 +97,47 @@ class WeatherViewController: UIViewController, CLLocationManagerDelegate {
     //MARK: - JSON Parsing
     /***************************************************************/
    
-    
     //Write the updateWeatherData method here:
+    // pass the API info to the weather data model
     func updateWeatherData (json: JSON) {
-        // we are looking inside the dictionary
-        // we are asking for the key "main" (has value an obkect)
+        // we are looking inside the dictionary (objecct)
+        // we are asking for the key "main" (has for value an object)
         // and then for the key "temp" inside the objet value of "main"
-        let tempResult = json["main"]["temp"]
-        // lecture 154
-        
+        // so in essence we are taking the temperature value
+        // also with .double we convert it to double (integer with decimal)
+        // because is still a JSON here
+        /// we also use optional binding with the if statement
+        // if the value from the api exists do the rest
+        if let tempResult = json["main"]["temp"].double {
+            // set the results of the api call temperature
+            // to the var "temperature" we created in the data model class
+            // the temperature relsult is in Kelvin
+            // and in order to convert it to Celcius we need to subtract 273.15
+            // we also convert the value from double to int
+            // to be able to do math
+            weatherDataModel.temperature = Int(tempResult - 273.15)
+            
+            // same thing for the city name
+            // we convert it to string by using .stringValue
+            weatherDataModel.city = json["name"].stringValue
+            
+            // same thing for the code for the current weather condition
+            // we look for -- weather array --> its first Element(object) --> key id
+            // weatherCondition var is declared as an Int so we convert to an Int
+            weatherDataModel.weatherCondition = json["weather"][0]["id"].intValue
+            
+            // we update the value of the weatherIconName var from data model class
+            // with the return of the method inside the data model class
+            // passing the value of the weather condition var we set aboe
+            weatherDataModel.weatherIconName = weatherDataModel.updateWeatherIcon(condition: weatherDataModel.weatherCondition)
+            
+            // call the UI method after everything is setup
+            updateUiWithWeatherData()
+            
+        } else {
+            // tell the user that we cant get the weather
+            cityLabel.text = "Weather Unavailable"
+        }
     }
 
     
@@ -112,9 +148,12 @@ class WeatherViewController: UIViewController, CLLocationManagerDelegate {
     
     
     //Write the updateUIWithWeatherData method here:
-    
-    
-    
+    // update UI with values set on the data model class
+    func updateUiWithWeatherData () {
+        cityLabel.text = weatherDataModel.city
+        temperatureLabel.text = String(weatherDataModel.temperature)
+        weatherIcon.image = UIImage(named: weatherDataModel.weatherIconName)
+    }
     
     
     
@@ -127,6 +166,8 @@ class WeatherViewController: UIViewController, CLLocationManagerDelegate {
     // .then()
     func locationManager(_ manager: CLLocationManager, didUpdateLocations locations: [CLLocation]){
         
+        // locationManager returns an array with coordinates every time the gps is running
+        // here we are accesing this array taking the latest location found (newest)
         let location = locations[locations.count - 1]
         
         // control that the data we got are correct-ish
@@ -139,6 +180,7 @@ class WeatherViewController: UIViewController, CLLocationManagerDelegate {
         // get coordinates to send to api request
         let latitude = location.coordinate.latitude
         let longitude = location.coordinate.longitude
+        
         
         /// dictionary
         // looks like an array - - behaves like an object
