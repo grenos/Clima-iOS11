@@ -14,7 +14,7 @@ import SwiftyJSON
 
 
 /// our class conforms to the rules of CLLocationManagerDelegate
-/// and ChangeCityDelegate of the changeCityViewController
+/// and ChangeCityDelegate Protocol of the changeCityViewController
 class WeatherViewController: UIViewController, CLLocationManagerDelegate, ChangeCityDelegate {
     
     //Constants
@@ -227,6 +227,8 @@ class WeatherViewController: UIViewController, CLLocationManagerDelegate, Change
             /// as! ChangeCityVC we tell the compiler that
             //destinationVC will be of type UIViewController
             let destinationVC = segue.destination as! ChangeCityViewController
+            // before we segue to the other view controller
+            // we set the this class as the delegate for the protocol with self
             destinationVC.delegate = self
         }
     }
