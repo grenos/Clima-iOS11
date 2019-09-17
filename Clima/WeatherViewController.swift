@@ -152,7 +152,7 @@ class WeatherViewController: UIViewController, CLLocationManagerDelegate, Change
     // update UI with values set on the data model class
     func updateUiWithWeatherData () {
         cityLabel.text = weatherDataModel.city
-        temperatureLabel.text = String(weatherDataModel.temperature)
+        temperatureLabel.text = "\(weatherDataModel.temperature)°"
         weatherIcon.image = UIImage(named: weatherDataModel.weatherIconName)
     }
     
@@ -211,7 +211,11 @@ class WeatherViewController: UIViewController, CLLocationManagerDelegate, Change
     
     //Write the userEnteredANewCityName Delegate method here:
     func userEnteredNewCityNAme(city: String) {
-        print(city)
+        
+        // dictionary (object)
+        let params: [String : String] = ["q": city, "appid": APP_ID]
+        // call the function with alamofire that calls the api
+        getWeatherData(url: WEATHER_URL, parameters: params)
     }
 
     
